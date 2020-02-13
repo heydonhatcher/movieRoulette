@@ -21,11 +21,17 @@ const getMovieById = (req, res) => {
 };
 
 const getMovieDetailsById = (req, res) => {
+  let payload;
   let sql =
     "SELECT * FROM title_basics INNER JOIN title_principals USING (tconst) INNER JOIN name_basics USING (nconst) WHERE tconst = $1 ORDER BY ordering asc";
   pool.query(sql, [req.params.tconst], (err, dbRes) => {
     if (err) return handleSQLError(res, err);
-    return res.send(dbRes.rows);
+    payload = dbRes.rows[0];
+    getMoviePoster(dbRes.rows[0].tconst).then(posterUrl => {
+      payload.poster = posterUrl;
+      console.log("payload.poster: ", payload.poster);
+      return res.send(payload);
+    });
   });
 };
 
