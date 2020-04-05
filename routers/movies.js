@@ -9,15 +9,29 @@ const corsOptions = {
 router.get("/:tconst", cors(corsOptions), moviesController.getMovieById);
 
 router.get(
+  "/:tconst/principals",
+  cors(corsOptions),
+  moviesController.getPrincipalsByMovieId
+);
+
+router.get(
   "/:tconst/details",
   cors(corsOptions),
   moviesController.getMovieDetailsById
 );
+router.options("/match", cors(corsOptions));
+router.post("/match", cors(corsOptions), moviesController.findMovieMatch);
 
 router.get(
-  "/:nconst/:category",
+  "/poster/:tconst",
   cors(corsOptions),
-  moviesController.findMovieMatch
+  moviesController.getMoviePoster
+);
+
+router.get(
+  "/find/:title",
+  cors(corsOptions),
+  moviesController.findMovieByTitle
 );
 
 module.exports = router;

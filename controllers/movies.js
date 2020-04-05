@@ -35,18 +35,77 @@ const getMovieDetailsById = (req, res) => {
   });
 };
 
+const getPrincipalsByMovieId = (req, res) => {
+  let sql =
+    "SELECT * FROM title_principals INNER JOIN name_basics USING (nconst) WHERE tconst = $1";
+  pool.query(sql, [req.params.tconst], (err, dbRes) => {
+    if (err) return handleSQLError(res, err);
+    return res.send(dbRes.rows);
+  });
+};
+
 const findMovieMatch = (req, res) => {
+  let sql = `WITH titles AS (
+      SELECT DISTINCT tconst
+      FROM
+        title_basics AS tb INNER JOIN title_principals as tp USING (tconst)
+      WHERE 
+      tb.titletype = 'movie'
+      AND tp.category IN ('director', 'writer', 'actor', 'actress')
+      AND tp.nconst = ANY($1)
+      AND tb.tconst != $2
+    )
+    SELECT
+      tconst,
+      primarytitle as title,
+      startyear as year,
+      array_to_json(ARRAY(
+        SELECT
+          json_build_object('nconst', nconst, 'name', primaryname)
+        FROM
+          title_principals tp INNER JOIN name_basics nb USING (nconst)
+        WHERE
+          tp.tconst = titles.tconst
+          AND category = 'director'
+      )) as directors,
+      array_to_json(ARRAY(
+        SELECT
+          json_build_object('nconst', nconst, 'name', primaryname)
+        FROM
+          title_principals tp INNER JOIN name_basics nb USING (nconst)
+        WHERE
+          tp.tconst = titles.tconst
+          AND category = 'writer'
+      )) as writers,
+        array_to_json(ARRAY(
+        SELECT
+          json_build_object('nconst', nconst, 'name', primaryname)
+        FROM
+          title_principals tp INNER JOIN name_basics nb USING (nconst)
+        WHERE
+          tp.tconst = titles.tconst
+          AND category in ('actor', 'actress')
+      )) as actors
+    FROM
+      titles INNER JOIN title_basics USING (tconst)
+    ORDER BY random()  
+    LIMIT 50`;
+  console.log(req.body);
+  pool.query(sql, [req.body.people, req.body.exclude], (err, dbRes) => {
+    if (err) return handleSQLError(res, err);
+    console.log(dbRes.rows);
+    return res.send(dbRes.rows);
+  });
+};
+
+const findMovieByTitle = (req, res) => {
   let payload;
   let sql =
-    "SELECT * FROM title_principals INNER JOIN title_basics USING (tconst) WHERE nconst LIKE $1 AND category LIKE $2 ORDER BY random() LIMIT 1";
-  pool.query(sql, [req.params.nconst, req.params.category], (err, dbRes) => {
+    "SELECT primarytitle, tconst FROM title_basics WHERE primarytitle LIKE $1 ORDER BY random() LIMIT 1";
+  pool.query(sql, [req.params.title], (err, dbRes) => {
     if (err) return handleSQLError(res, err);
     payload = dbRes.rows[0];
-    getMoviePoster(dbRes.rows[0].tconst).then(posterUrl => {
-      payload.poster = posterUrl;
-      console.log("payload.poster: ", payload.poster);
-      return res.send(payload);
-    });
+    return res.send(payload);
   });
 };
 
@@ -66,5 +125,8 @@ const getMoviePoster = tconst => {
 module.exports = {
   getMovieById,
   getMovieDetailsById,
-  findMovieMatch
+  findMovieMatch,
+  getPrincipalsByMovieId,
+  getMoviePoster,
+  findMovieByTitle
 };
