@@ -99,13 +99,48 @@ const findMovieMatch = (req, res) => {
 };
 
 const findMovieByTitle = (req, res) => {
-  let payload;
-  let sql =
-    "SELECT primarytitle, tconst FROM title_basics WHERE primarytitle LIKE $1 ORDER BY random() LIMIT 1";
-  pool.query(sql, [req.params.title], (err, dbRes) => {
+  let sql = `SELECT
+    tconst,
+    primarytitle as title,
+    startyear as year,
+    array_to_json(ARRAY(
+      SELECT
+        json_build_object('nconst', nconst, 'name', primaryname)
+      FROM
+        title_principals tp INNER JOIN name_basics nb USING (nconst)
+      WHERE
+        tp.tconst = tb.tconst
+        AND category = 'director'
+    )) as directors,
+    array_to_json(ARRAY(
+      SELECT
+        json_build_object('nconst', nconst, 'name', primaryname)
+      FROM
+        title_principals tp INNER JOIN name_basics nb USING (nconst)
+      WHERE
+        tp.tconst = tb.tconst
+        AND category = 'writer'
+    )) as writers,
+      array_to_json(ARRAY(
+      SELECT
+        json_build_object('nconst', nconst, 'name', primaryname)
+      FROM
+        title_principals tp INNER JOIN name_basics nb USING (nconst)
+      WHERE
+        tp.tconst = tb.tconst
+        AND category in ('actor', 'actress')
+    )) as actors
+  FROM
+    title_basics tb
+  WHERE
+    tb.titletype = 'movie'
+    AND translate(lower(primarytitle), '.-/,";:', '') LIKE '%' || translate(lower($1), '.-/,";:', '') || '%'
+  ORDER BY random()
+  LIMIT 50  
+  `;
+  pool.query(sql, [req.query.title], (err, dbRes) => {
     if (err) return handleSQLError(res, err);
-    payload = dbRes.rows[0];
-    return res.send(payload);
+    return res.send(dbRes.rows);
   });
 };
 
