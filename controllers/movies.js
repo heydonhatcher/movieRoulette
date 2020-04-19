@@ -93,8 +93,10 @@ const findMovieMatch = (req, res) => {
   console.log(req.body);
   pool.query(sql, [req.body.people, req.body.exclude], (err, dbRes) => {
     if (err) return handleSQLError(res, err);
-    console.log(dbRes.rows);
-    return res.send(dbRes.rows);
+    return res.send({
+      error: null,
+      data: dbRes.rows
+    });
   });
 };
 
@@ -140,7 +142,10 @@ const findMovieByTitle = (req, res) => {
   `;
   pool.query(sql, [req.query.title], (err, dbRes) => {
     if (err) return handleSQLError(res, err);
-    return res.send(dbRes.rows);
+    return res.send({
+      error: null,
+      data: dbRes.rows
+    });
   });
 };
 
