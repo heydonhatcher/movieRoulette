@@ -3,7 +3,7 @@ const moviesController = require("../controllers/movies");
 const router = express.Router();
 const cors = require("cors");
 const corsOptions = {
-  origin: "http://localhost:3000"
+  origin: "http://localhost:3000",
 };
 
 router.options("/match", cors(corsOptions));

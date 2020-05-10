@@ -3,19 +3,19 @@ const { handleSQLError } = require("../sql/error");
 const fetch = require("node-fetch");
 require("dotenv").config();
 
-const _getMovie = tconst => {
+const _getMovie = (tconst) => {
   let sql = "SELECT * FROM title_basics WHERE tconst = $1";
-  return pool.query(sql, [tconst]).then(res => {
+  return pool.query(sql, [tconst]).then((res) => {
     return res.rows[0];
   });
 };
 
 const getMovieById = (req, res) => {
   _getMovie(req.params.tconst)
-    .then(movieData => {
+    .then((movieData) => {
       return res.send(movieData);
     })
-    .catch(err => {
+    .catch((err) => {
       return handleSQLError(res, err);
     });
 };
@@ -27,7 +27,7 @@ const getMovieDetailsById = (req, res) => {
   pool.query(sql, [req.params.tconst], (err, dbRes) => {
     if (err) return handleSQLError(res, err);
     payload = dbRes.rows[0];
-    getMoviePoster(dbRes.rows[0].tconst).then(posterUrl => {
+    getMoviePoster(dbRes.rows[0].tconst).then((posterUrl) => {
       payload.poster = posterUrl;
       console.log("payload.poster: ", payload.poster);
       return res.send(payload);
@@ -45,6 +45,12 @@ const getPrincipalsByMovieId = (req, res) => {
 };
 
 const findMovieMatch = (req, res) => {
+  if (!req.session.username) {
+    console.log("no user");
+    return res.send({
+      error: "ERROR_USER_NOT_LOGGED_IN",
+    });
+  }
   let sql = `WITH titles AS (
       SELECT DISTINCT tconst
       FROM
@@ -95,12 +101,19 @@ const findMovieMatch = (req, res) => {
     if (err) return handleSQLError(res, err);
     return res.send({
       error: null,
-      data: dbRes.rows
+      data: dbRes.rows,
     });
   });
 };
 
 const findMovieByTitle = (req, res) => {
+  console.log(req.session);
+  if (!req.session.username) {
+    console.log("no user");
+    return res.send({
+      error: "ERROR_USER_NOT_LOGGED_IN",
+    });
+  }
   let sql = `SELECT
     tconst,
     primarytitle as title,
@@ -144,20 +157,20 @@ const findMovieByTitle = (req, res) => {
     if (err) return handleSQLError(res, err);
     return res.send({
       error: null,
-      data: dbRes.rows
+      data: dbRes.rows,
     });
   });
 };
 
-const getMoviePoster = tconst => {
+const getMoviePoster = (tconst) => {
   console.log("tconst: ", tconst);
   return fetch(
     `https://omdbapi.com?apikey=${process.env.OMDB_API_KEY}&i=${tconst}`
   )
-    .then(res => {
+    .then((res) => {
       return res.json();
     })
-    .then(data => {
+    .then((data) => {
       return data["Poster"];
     });
 };
@@ -168,5 +181,5 @@ module.exports = {
   findMovieMatch,
   getPrincipalsByMovieId,
   getMoviePoster,
-  findMovieByTitle
+  findMovieByTitle,
 };
