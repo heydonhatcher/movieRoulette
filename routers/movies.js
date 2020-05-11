@@ -1,14 +1,12 @@
 const express = require("express");
 const moviesController = require("../controllers/movies");
 const router = express.Router();
-const cors = require("cors");
-const corsOptions = {
-  origin: "http://localhost:3000",
-};
+const cors = require("../constants/cors");
 
-router.options("/match", cors(corsOptions));
-router.post("/match", cors(corsOptions), moviesController.findMovieMatch);
+router.options("/match", cors);
+router.post("/match", cors, moviesController.findMovieMatch);
 
-router.get("/find", cors(corsOptions), moviesController.findMovieByTitle);
+router.get("/find", cors, moviesController.findMovieByTitle);
+router.get("/poster/:tconst", cors, moviesController.getMoviePoster);
 
 module.exports = router;

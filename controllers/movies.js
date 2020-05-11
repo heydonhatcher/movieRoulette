@@ -1,6 +1,7 @@
 const pool = require("../sql/connection");
 const { handleSQLError } = require("../sql/error");
 const fetch = require("node-fetch");
+const { OMDB_API_KEY } = require("../constants/protected");
 require("dotenv").config();
 
 const _getMovie = (tconst) => {
@@ -162,17 +163,30 @@ const findMovieByTitle = (req, res) => {
   });
 };
 
-const getMoviePoster = (tconst) => {
-  console.log("tconst: ", tconst);
-  return fetch(
-    `https://omdbapi.com?apikey=${process.env.OMDB_API_KEY}&i=${tconst}`
-  )
-    .then((res) => {
-      return res.json();
-    })
-    .then((data) => {
-      return data["Poster"];
+const getMoviePoster = (req, res) => {
+  if (!req.session.username) {
+    console.log("no user");
+    return res.send({
+      error: "ERROR_USER_NOT_LOGGED_IN",
     });
+  }
+  let tconst = req.params.tconst;
+  console.log(tconst);
+  let url = `http://img.omdbapi.com/?apikey=${OMDB_API_KEY}&i=${tconst}`;
+  console.log(url);
+  fetch(url, {
+    method: "GET",
+  })
+    .then((data) => data.arrayBuffer())
+    .then((buff) => {
+      res.contentType("jpeg");
+      res.end(Buffer.from(buff));
+    })
+    .catch((err) =>
+      res.send({
+        error: err,
+      })
+    );
 };
 
 module.exports = {
