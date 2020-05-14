@@ -58,6 +58,7 @@ const findMovieMatch = (req, res) => {
       AND tp.category IN ('director', 'writer', 'actor', 'actress')
       AND tp.nconst = ANY($1)
       AND tb.tconst != $2
+      AND tb.isadult = false
     )
     SELECT
       tconst,
@@ -145,6 +146,7 @@ const findMovieByTitle = (req, res) => {
   WHERE
     tb.titletype = 'movie'
     AND translate(lower(primarytitle), '.-/,";:', '') LIKE '%' || translate(lower($1), '.-/,";:', '') || '%'
+    AND tb.isadult = false
   ORDER BY random()
   LIMIT 50  
   `;
