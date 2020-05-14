@@ -2,7 +2,6 @@ const pool = require("../sql/connection");
 const { handleSQLError } = require("../sql/error");
 const fetch = require("node-fetch");
 const { OMDB_API_KEY } = require("../constants/protected");
-require("dotenv").config();
 
 const _getMovie = (tconst) => {
   let sql = "SELECT * FROM title_basics WHERE tconst = $1";
@@ -30,7 +29,6 @@ const getMovieDetailsById = (req, res) => {
     payload = dbRes.rows[0];
     getMoviePoster(dbRes.rows[0].tconst).then((posterUrl) => {
       payload.poster = posterUrl;
-      console.log("payload.poster: ", payload.poster);
       return res.send(payload);
     });
   });
@@ -47,7 +45,6 @@ const getPrincipalsByMovieId = (req, res) => {
 
 const findMovieMatch = (req, res) => {
   if (!req.session.username) {
-    console.log("no user");
     return res.send({
       error: "ERROR_USER_NOT_LOGGED_IN",
     });
@@ -97,7 +94,6 @@ const findMovieMatch = (req, res) => {
       titles INNER JOIN title_basics USING (tconst)
     ORDER BY random()  
     LIMIT 50`;
-  console.log(req.body);
   pool.query(sql, [req.body.people, req.body.exclude], (err, dbRes) => {
     if (err) return handleSQLError(res, err);
     return res.send({
@@ -108,9 +104,7 @@ const findMovieMatch = (req, res) => {
 };
 
 const findMovieByTitle = (req, res) => {
-  console.log(req.session);
   if (!req.session.username) {
-    console.log("no user");
     return res.send({
       error: "ERROR_USER_NOT_LOGGED_IN",
     });
@@ -165,15 +159,12 @@ const findMovieByTitle = (req, res) => {
 
 const getMoviePoster = (req, res) => {
   if (!req.session.username) {
-    console.log("no user");
     return res.send({
       error: "ERROR_USER_NOT_LOGGED_IN",
     });
   }
   let tconst = req.params.tconst;
-  console.log(tconst);
   let url = `http://img.omdbapi.com/?apikey=${OMDB_API_KEY}&i=${tconst}`;
-  console.log(url);
   fetch(url, {
     method: "GET",
   })

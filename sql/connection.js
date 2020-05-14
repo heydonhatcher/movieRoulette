@@ -1,6 +1,5 @@
 const { Pool } = require("pg");
-
-require("dotenv").config();
+const { PG_PASSWORD } = require("../constants/protected");
 
 class Connection {
   constructor() {
@@ -10,8 +9,8 @@ class Connection {
         max: 100,
         host: "34.69.101.132",
         user: "postgres",
-        password: process.env.PG_PASSWORD,
-        database: "postgres"
+        password: PG_PASSWORD,
+        database: "postgres",
       });
     }
 
