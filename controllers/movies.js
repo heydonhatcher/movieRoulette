@@ -46,7 +46,9 @@ const getPrincipalsByMovieId = (req, res) => {
 const findMovieMatch = (req, res) => {
   if (!req.session.username) {
     return res.send({
-      error: "ERROR_USER_NOT_LOGGED_IN",
+      error: {
+        type: "ERROR_USER_NOT_LOGGED_IN",
+      },
     });
   }
   let sql = `WITH titles AS (
@@ -107,7 +109,9 @@ const findMovieMatch = (req, res) => {
 const findMovieByTitle = (req, res) => {
   if (!req.session.username) {
     return res.send({
-      error: "ERROR_USER_NOT_LOGGED_IN",
+      error: {
+        type: "ERROR_USER_NOT_LOGGED_IN",
+      },
     });
   }
   let sql = `SELECT
@@ -162,7 +166,9 @@ const findMovieByTitle = (req, res) => {
 const getMoviePoster = (req, res) => {
   if (!req.session.username) {
     return res.send({
-      error: "ERROR_USER_NOT_LOGGED_IN",
+      error: {
+        type: "ERROR_USER_NOT_LOGGED_IN",
+      },
     });
   }
   let tconst = req.params.tconst;

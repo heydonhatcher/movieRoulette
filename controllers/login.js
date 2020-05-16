@@ -16,7 +16,10 @@ async function lookUpUser(userid) {
   let sql = "SELECT * FROM auth.users WHERE google_id = $1";
   const results = await pool.query(sql, [userid]);
   if (results.rows.length !== 1) {
-    throw "ERROR_USER_NOT_FOUND";
+    throw {
+      type: "ERROR_USER_NOT_FOUND",
+      userid,
+    };
   }
 
   return results.rows[0].username;
