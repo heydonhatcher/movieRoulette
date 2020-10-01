@@ -36,7 +36,6 @@ const login = (req, res) => {
         status: "SUCCESS",
         data: {
           username: username,
-          extra: 'testme',
         },
       });
     })
@@ -44,7 +43,6 @@ const login = (req, res) => {
       res.send({
         status: "FAILURE",
         error: error,
-        extra: 'errortestme',
       })
     );
 };
