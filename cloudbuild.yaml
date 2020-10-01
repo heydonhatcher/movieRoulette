@@ -2,6 +2,9 @@ steps:
     - name: node
       entrypoint: npm
       args: ['install']
+    - name: gcr.io/cloud-builders/gcloud
+      entrypoint: 'bash'
+      args: [ '-c', "gcloud secrets versions access latest --secret=backend-protected --format='get(payload.data)' | tr '_-' '/+' | base64 -d > constants/protected.js" ]
     - name: 'gcr.io/cloud-builders/gcloud'
       args: [ 'compute', 'scp', '--recurse', '--zone=us-central1-a', '--project=igneous-future-259601', '/workspace', 'heyhatch@movieroulette-1:/tmp']
     - name: 'gcr.io/cloud-builders/gcloud'

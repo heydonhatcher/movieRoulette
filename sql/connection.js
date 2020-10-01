@@ -1,5 +1,5 @@
 const { Pool } = require("pg");
-const { PG_PASSWORD } = require("../../protected/movieroulette.js");
+const { PG_PASSWORD } = require("../constants/protected");
 
 class Connection {
   constructor() {
