@@ -11,11 +11,15 @@
   "dependencies": {
     "connect-pg-simple": "^6.2.0",
     "cors": "^2.8.5",
-    "express": "^4.17.1",
+    "express": "^4.21.0",
     "express-session": "^1.17.1",
+    "express": "^4.22.1",
+    "express-session": "^1.18.2",
     "google-auth-library": "^6.0.6",
     "node-fetch": "^3.1.1",
     "nodemon": "^2.0.20",
+    "node-fetch": "^3.2.10",
+    "nodemon": "^2.0.22",
     "pg": "^7.18.2"
   }
 }
